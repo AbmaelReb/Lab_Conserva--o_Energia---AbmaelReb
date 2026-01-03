@@ -1,2 +1,1027 @@
-# Lab_Conserva--o_Energia---AbmaelReb
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratório Virtual: Conservação da Energia</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f0f0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
 
+    #massa-texto {
+    position: absolute; 
+    top: 50px;          
+    left: 20px;         
+    font-size: 16px;
+    }
+
+    #gravidade-texto {
+        position: absolute;
+        top: 80px;
+        left: 20px;
+        font-size: 16px;
+    }
+
+    #modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #welcome-modal {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        max-width: 500px;
+        text-align: center;
+    }
+
+    #welcome-modal p {
+        font-size: 18px; 
+        line-height: 1.6;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    #close-modal-btn {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
+    }
+
+    #close-modal-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        max-width: 1500px;
+    }
+    
+    .painel {
+        width: 300px;
+        background: white;
+        padding: 30px 30px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .painel h3 {
+        margin-top: 0;
+        color: #2c3e50;
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3498db;
+    }
+    
+    .info-box {
+        background: #f8f9fa;
+        padding: 43px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+    
+    label {
+        font-weight: 600;
+        display: block;
+        margin-top: 15px;
+        color: #34495e;
+    }
+    
+    input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    
+    .hint {
+        color: red;
+        font-size: 12px;
+        margin-top: 3px;
+        display: block;
+    }
+    
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        gap: 10px;
+    }
+
+    .assinatura {
+        position: fixed;
+        bottom: 8px;
+        right: 12px;
+        font-size: 14px;
+        color: black;
+        font-family: Arial, sans-serif;
+        font-weight: bold;   
+        opacity: 0.7;       
+        pointer-events: none;
+    }
+    .legenda {
+        position: absolute;   
+        top: 455px;         
+        left: 85px;           
+        font-size: 14px;     
+        font-family: Arial, sans-serif;
+        color: black;
+        display: grid;
+        grid-template-columns: repeat(1, auto);
+        gap: 5px 15px;
+    }
+    .legenda div {
+        white-space: nowrap;
+    }
+    button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+    }
+    #lancar {
+        background-color: #2ecc71;
+        color: white;
+    }
+    
+    #lancar:hover {
+        background-color: #27ae60;
+    }
+    
+    #resetar {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    #resetar:hover {
+        background-color: #c0392b;
+    }
+    
+    #infoEnergia {
+        background: #2c3e50;
+        color: white;
+        padding: 12px;
+        border-radius: 6px;
+        font-family: monospace;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+    
+    .canvas-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        padding: 15px;
+        width: 800px;
+        max-width: 100%;
+    }
+    
+    canvas {
+        display: block;
+        border-radius: 4px;
+    }
+    
+    @media (max-width: 1100px) {
+        .container {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .painel, .canvas-container {
+            width: 100%;
+            max-width: 800px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div id="modal-overlay">
+    <div id="welcome-modal">
+        <p>
+            Olá! Bem-vindo(a) ao Laboratório de Conservação de Energia.
+            <br><br>
+            Sua missão é determinar o valor suficiente da Energia Cinética (K) em Joules (J) para que o projétil acerte o alvo.
+            <br><br>
+            Lembre-se de usar os dados de massa e gravidade, considerando que o sistema é conservativo para efeitos de cálculo!
+        </p>
+        <button id="close-modal-btn">OK</button>
+    </div>
+</div>
+<div class="container">
+    <div class="painel">
+        <h3>Configurações</h3>
+        
+    <div class="info-box">
+        <p id="massa-texto"><strong>Massa:</strong> <span id="massa">2.50</span></p>
+        <p id="gravidade-texto"><strong>Gravidade:</strong> <span id="gravidade">9.8 m/s²</span></p>
+    </div>
+
+        
+        <label for="energia">Energia Cinética Inicial (J):</label>
+        <input type="number" id="energia" step="1" min="0" placeholder="Digite o valor">
+        <span class="hint">Insira o valor da energia</span>
+        
+        <div id="infoEnergia">
+            K=0.0 J | U=0.0 J | E=0.0 J
+        </div>
+        
+        <div class="button-group">
+            <button id="lancar">Lançar</button>
+            <button id="resetar">Resetar</button>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="canvas" width="800" height="500"></canvas>
+    </div>
+    <div class="assinatura">
+        Produto Educacional MATIEF - UFERSA
+    </div>
+    <div class="legenda">
+        <div><strong>  Legendas:</strong></div>
+        <div><strong>  K:</strong> Energia Cinética</div>
+        <div><strong>  U:</strong> Energia Potencial Gravitacional</div>
+        <div><strong>  E:</strong> Energia Mecânica</div>
+    </div>
+
+</div>
+
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    const massaDisplay = document.getElementById("massa");
+    const gravidadeDisplay = document.getElementById("gravidade");
+    const energiaInput = document.getElementById("energia");
+    const infoEnergia = document.getElementById("infoEnergia");
+    const lancarBtn = document.getElementById("lancar");
+    const resetarBtn = document.getElementById("resetar");
+
+    let massa = (Math.random() * 4 + 1).toFixed(2);
+    massaDisplay.textContent = massa + " kg";
+    const g = 9.8;
+    let KE = 0; 
+    let PE = 0; 
+    let bola = { x: 200, y: 263, raio: 0, vx: 0, vy: 0 };
+    let energiaTotal = 0;
+    let rodando = false;
+    let trajetoria = [];
+    const maxTrajetoriaPoints = 100;
+    let x_max = 0;
+    let currentX = 0;
+    let animationId = null;
+    const imgExplosao = new Image();
+    imgExplosao.src = 'imagem/explo.png'; 
+    let mostrarImgExplosao = false;
+
+    const massaTexto = document.getElementById('massa-texto');
+    massaTexto.style.left = '95px';
+    massaTexto.style.top = '105px';
+
+    const gravidadeTexto = document.getElementById('gravidade-texto');
+    gravidadeTexto.style.left = '95px'; 
+    gravidadeTexto.style.top = '140px';  
+
+    function Fundo() {
+        const agora = new Date();
+        const horas = agora.getHours();
+        const fundoElement = document.getElementById('fundo-lab');
+        
+        fundoElement.src = "imagem/Fundo main.png";
+    }
+
+    window.onload = function() {
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        modalOverlay.style.display = 'flex';
+
+        closeModalBtn.onclick = function() {
+            modalOverlay.style.display = 'none';
+        }
+
+        let fundoElement = document.getElementById('fundo-lab');
+        
+        if (!fundoElement) {
+            fundoElement = new Image();
+            fundoElement.id = 'fundo-lab';
+            fundoElement.style.position = 'fixed';
+            fundoElement.style.top = '0';
+            fundoElement.style.left = '0';
+            fundoElement.style.width = '100%';
+            fundoElement.style.height = '100%';
+            fundoElement.style.zIndex = '-1';
+            fundoElement.style.objectFit = 'cover';
+            document.body.appendChild(fundoElement);
+        }
+        Fundo();
+    };
+
+    const fundo = new Image();
+    fundo.src = "imagem/main.png";
+    const colors = {
+        bola: '#e74c3c',
+        trajetoria: 'rgba(52, 152, 219, 0.6)'
+    };
+
+
+let reguaAtiva = false; 
+let reguaInicio = { x: 750, y: 392 };
+let reguaFim = { x: 750, y: 392 };
+let arrastandoRegua = false;
+let mouseSobreExtremidade = false;
+const toleranciaClique = 8;
+
+
+    function pixelsToMetros(pixels) {
+    let metros = 0;
+    if (pixels >= 0 && pixels <= 300) {
+        if (pixels >= 0 && pixels <= 6) {
+            metros = 0 + (8 - 0) / (6 - 0) * (pixels - 0);
+        } else if (pixels >= 6 && pixels <= 7.5) {
+            metros = 8 + (8.4 - 8) / (7.5 - 6) * (pixels - 6);
+        } else if (pixels >= 7.5 && pixels <= 9) {
+            metros = 8.4 + (8.8 - 8.4) / (9 - 7.5) * (pixels - 7.5);
+        } else if (pixels >= 9 && pixels <= 12) {
+            metros = 8.8 + (9.2 - 8.8) / (12 - 9) * (pixels - 9);
+        } else if (pixels >= 12 && pixels <= 15) {
+            metros = 9.2 + (9.6 - 9.2) / (15 - 12) * (pixels - 12);
+        } else if (pixels >= 15 && pixels <= 18) {
+            metros = 9.6 + (10 - 9.6) / (18 - 15) * (pixels - 15);
+        } else if (pixels >= 18 && pixels <= 21) {
+            metros = 10 + (10.4 - 10) / (21 - 18) * (pixels - 18);
+        } else if (pixels >= 21 && pixels <= 24) {
+            metros = 10.4 + (10.8 - 10.4) / (24 - 21) * (pixels - 21);
+        } else if (pixels >= 24 && pixels <= 28) {
+            metros = 10.8 + (11.2 - 10.8) / (28 - 24) * (pixels - 24);
+        } else if (pixels >= 28 && pixels <= 32) {
+            metros = 11.2 + (11.6 - 11.2) / (32 - 28) * (pixels - 28);
+        } else if (pixels >= 32 && pixels <= 36) {
+            metros = 11.6 + (12 - 11.6) / (36 - 32) * (pixels - 32);
+        } else if (pixels >= 36 && pixels <= 41) {
+            metros = 12 + (12.4 - 12) / (41 - 36) * (pixels - 36);
+        } else if (pixels >= 41 && pixels <= 46) {
+            metros = 12.4 + (12.81 - 12.4) / (46 - 41) * (pixels - 41);
+        } else if (pixels >= 46 && pixels <= 51) {
+            metros = 12.81 + (13.21 - 12.81) / (51 - 46) * (pixels - 46);
+        } else if (pixels >= 51 && pixels <= 53) {
+            metros = 13.21 + (13.61 - 13.21) / (53 - 51) * (pixels - 51);
+        } else if (pixels >= 53 && pixels <= 58) {
+            metros = 13.61 + (14.01 - 13.61) / (58 - 53) * (pixels - 53);
+        } else if (pixels >= 58 && pixels <= 65) {
+            metros = 14.01 + (14.41 - 14.01) / (65 - 58) * (pixels - 58);
+        } else if (pixels >= 65 && pixels <= 70) {
+            metros = 14.41 + (14.81 - 14.41) / (70 - 65) * (pixels - 65);
+        } else if (pixels >= 70 && pixels <= 76) {
+            metros = 14.81 + (15.21 - 14.81) / (76 - 70) * (pixels - 70);
+        } else if (pixels >= 76 && pixels <= 82) {
+            metros = 15.21 + (15.61 - 15.21) / (82 - 76) * (pixels - 76);
+        } else if (pixels >= 82 && pixels <= 89) {
+            metros = 15.61 + (16.01 - 15.61) / (89 - 82) * (pixels - 82);
+        } else if (pixels >= 89 && pixels <= 96) {
+            metros = 16.01 + (16.41 - 16.01) / (96 - 89) * (pixels - 89);
+        } else if (pixels >= 96 && pixels <= 103) {
+            metros = 16.41 + (16.81 - 16.41) / (103 - 96) * (pixels - 96);
+        } else if (pixels >= 103 && pixels <= 110) {
+            metros = 16.81 + (17.52 - 16.81) / (110 - 103) * (pixels - 103);
+        } else if (pixels >= 110 && pixels <= 119) {
+            metros = 17.52 + (17.61 - 17.52) / (119 - 110) * (pixels - 110);
+        } else if (pixels >= 119 && pixels <= 126) {
+            metros = 17.61 + (17.97 - 17.61) / (126 - 119) * (pixels - 119);
+        } else if (pixels >= 126 && pixels <= 156) {
+            metros = 17.97 + (19.41 - 17.97) / (156 - 126) * (pixels - 126);
+        } else if (pixels >= 156 && pixels <= 169) {
+            metros = 19.41 + (20.41 - 19.41) / (169 - 156) * (pixels - 156);
+        } else if (pixels >= 169 && pixels <= 178) {
+            metros = 20.41 + (20.81 - 20.41) / (178 - 169) * (pixels - 169);
+        } else if (pixels >= 178 && pixels <= 189) {
+            metros = 20.81 + (21.21 - 20.81) / (189 - 178) * (pixels - 178);
+        } else if (pixels >= 189 && pixels <= 198) {
+            metros = 21.21 + (21.61 - 21.21) / (198 - 189) * (pixels - 189);
+        } else if (pixels >= 198 && pixels <= 209) {
+            metros = 21.61 + (22.01 - 21.61) / (209 - 198) * (pixels - 198);
+        } else if (pixels >= 209 && pixels <= 219) {
+            metros = 22.01 + (22.41 - 22.01) / (219 - 209) * (pixels - 209);
+        } else if (pixels >= 219 && pixels <= 230) {
+            metros = 22.41 + (22.81 - 22.41) / (230 - 219) * (pixels - 219);
+        } else if (pixels >= 230 && pixels <= 241) {
+            metros = 22.81 + (23.21 - 22.81) / (241 - 230) * (pixels - 230);
+        } else if (pixels >= 241 && pixels <= 252) {
+            metros = 23.21 + (23.61 - 23.21) / (252 - 241) * (pixels - 241);
+        } else if (pixels >= 252 && pixels <= 263) {
+            metros = 23.61 + (24.01 - 23.61) / (263 - 252) * (pixels - 252);
+        } else if (pixels >= 263 && pixels <= 276) {
+            metros = 24.01 + (24.41 - 24.01) / (276 - 263) * (pixels - 263);
+        } else if (pixels >= 276 && pixels <= 288) {
+            metros = 24.41 + (24.81 - 24.41) / (288 - 276) * (pixels - 276);
+        } else if (pixels >= 288 && pixels <= 300) {
+            metros = 24.81 + (25.21 - 24.81) / (300 - 288) * (pixels - 288);
+        }
+    } else {
+        metros = 24.81 + (25.21 - 24.81) / (300 - 288) * (pixels - 288); // fora da faixa
+    }
+
+    return metros;
+}
+
+const imgTrena = new Image();
+imgTrena.src = "imagem/trena.png";
+const checkboxRegua = document.createElement("label");
+checkboxRegua.innerHTML = `<input type="checkbox" id="ativarRegua"> Exibir Régua`;
+checkboxRegua.style.position = "absolute";  
+checkboxRegua.style.top = "400px";    
+checkboxRegua.style.left = "80px"; 
+document.querySelector(".painel").appendChild(checkboxRegua);
+
+
+document.getElementById("ativarRegua").addEventListener("change", function() {
+    reguaAtiva = this.checked;
+    desenhar();
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!reguaAtiva) return;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    mouseSobreExtremidade =
+        Math.abs(mouseX - reguaFim.x) < toleranciaClique &&
+        Math.abs(mouseY - reguaFim.y) < toleranciaClique;
+
+    if (arrastandoRegua) {
+        if (mouseY < reguaInicio.y) {
+            reguaFim.y = mouseY;
+        } else {
+            reguaFim.y = reguaInicio.y; 
+        }
+    }
+
+    desenhar();
+});
+
+canvas.addEventListener("mousedown", () => {
+    if (mouseSobreExtremidade && reguaAtiva) {
+        arrastandoRegua = true;
+    }
+});
+
+canvas.addEventListener("mouseup", () => {
+    arrastandoRegua = false;
+});
+
+    function desenharRegua() {
+        if (!reguaAtiva) return;
+
+        ctx.save();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+
+        const largura = 40;  // ajuste aqui
+        const altura  = 42;  // ajuste aqui
+
+        ctx.drawImage(
+            imgTrena,
+            reguaInicio.x - largura / 2+14,
+            reguaInicio.y - altura / 2 +16,
+            largura,
+            altura
+        );
+
+        ctx.beginPath();
+        ctx.moveTo(reguaInicio.x, reguaInicio.y);
+        ctx.lineTo(reguaFim.x, reguaFim.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(reguaInicio.x - 5, reguaInicio.y);
+        ctx.lineTo(reguaInicio.x + 5, reguaInicio.y);
+        ctx.moveTo(reguaFim.x - 10, reguaFim.y);
+        ctx.lineTo(reguaFim.x + 5, reguaFim.y);
+        ctx.stroke();
+
+        if (mouseSobreExtremidade) {
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.arc(reguaFim.x-3, reguaFim.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        const pixels = Math.abs(reguaFim.y - reguaInicio.y);
+        let metros;
+
+        metros=pixelsToMetros(pixels)
+        metros = (metros).toFixed(1);
+        ctx.fillStyle = "blue";
+        ctx.font = "bold 14px Arial";
+        ctx.fillText(`${metros} m`, reguaFim.x - 18, reguaFim.y - 20);
+
+        ctx.restore();
+    }
+
+    function desenharGraficoEnergia() {
+    if (energiaLançada <= 0) {
+        return;
+    }
+
+    const maxBarHeight = 100; 
+    const barWidth = 20;       
+    const barSpacing = 10;   
+    const chartX = 700;       
+    const chartY = 20;    
+    const chartBottomY = chartY + maxBarHeight;
+
+    const alturaKE = (KE / energiaLançada) * maxBarHeight;
+    const alturaPE = (PE / energiaLançada) * maxBarHeight;
+
+    ctx.save();
+
+    const eixoX = chartX - 20;
+    ctx.beginPath();
+    ctx.moveTo(eixoX, chartBottomY);
+    ctx.lineTo(eixoX, chartY);
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(eixoX - 5, chartBottomY);
+    ctx.lineTo(eixoX + 5, chartBottomY);
+    ctx.stroke();
+    ctx.font = "12px Arial";
+    ctx.textAlign = "right";
+    ctx.fillStyle = "black";
+    ctx.fillText("0", eixoX - 8, chartBottomY + 4);
+    ctx.beginPath();
+    ctx.moveTo(eixoX - 5, chartY);
+    ctx.lineTo(eixoX + 5, chartY);
+    ctx.stroke();
+    ctx.fillText("Máx", eixoX - 8, chartY + 4);
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(chartX, chartBottomY - alturaKE, barWidth, alturaKE);
+    ctx.strokeRect(chartX, chartY, barWidth, maxBarHeight);
+    const peX = chartX + barWidth + barSpacing;
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(peX, chartBottomY - alturaPE, barWidth, alturaPE);
+    ctx.strokeRect(peX, chartY, barWidth, maxBarHeight);
+    const totX = peX + barWidth + barSpacing;
+    ctx.fillStyle = '#95a5a6';
+    ctx.fillRect(totX, chartY, barWidth, maxBarHeight);
+    ctx.strokeRect(totX, chartY, barWidth, maxBarHeight);
+    ctx.fillStyle = 'black';
+    ctx.font = 'bold 12px Arial';
+    ctx.textAlign = 'center';
+
+    const labelY = chartBottomY + 15;
+    ctx.fillText('K', chartX + barWidth / 2, labelY);
+    ctx.fillText('U', peX + barWidth / 2, labelY);
+    ctx.fillText('E', totX + barWidth / 2, labelY);
+
+    ctx.restore();
+}
+
+    function desenhar() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (fundo.complete) {
+            const proporcao = Math.max(
+                canvas.width / fundo.width, 
+                canvas.height / fundo.height
+            );
+            const largura = fundo.width * proporcao;
+            const altura = fundo.height * proporcao*1.1;
+            const x = (canvas.width - largura) / 2;
+            const y = (canvas.height - altura) / 2 -30;
+
+            ctx.drawImage(fundo, x, y, largura, altura);
+        }
+        
+        if (mostrarImgExplosao) {
+            ctx.drawImage(imgExplosao, 180, 370, 30,40);
+        }
+
+        if (trajetoria.length > 1) {
+            ctx.strokeStyle = colors.trajetoria;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(trajetoria[0].x, trajetoria[0].y);
+            for (let i = 1; i < trajetoria.length; i++) {
+                ctx.lineTo(trajetoria[i].x, trajetoria[i].y);
+            }
+            ctx.stroke();
+        }
+        
+        
+        ctx.beginPath();
+        ctx.arc(bola.x-10, bola.y, bola.raio, 0, Math.PI * 2);
+        ctx.fillStyle = colors.bola;
+        ctx.fill();
+        ctx.closePath();
+
+
+        desenharRegua();
+        desenharGraficoEnergia();
+    }
+
+    let mensagemAtual = null;
+    let corMensagemAtual = null;
+    let alturaMaxima = 0; 
+    let sucesso = false;    
+    let yCurveAt650 = null;
+
+    function tocarSom(arquivo) {
+        const audio = new Audio(arquivo);
+        audio.play();
+    }
+
+    function curvaBase(x) {
+    return (-0.0000000784974 * x * x * x)
+         - (0.00113549975   * x * x)
+         + (0.772548312     * x)
+         + 265.045831;
+    }
+
+    function calcularY(x) {
+        if (x <= 300) {
+            return 392.6667;
+        } else {
+            return curvaBase(x);
+        }
+    }
+
+    function calcularY_sucesso(x) {
+    if (x <= 300) {
+        return 392.6667;
+    }
+    if (x < 650) {
+        return curvaBase(x);
+    }
+    if (x <= 675) { 
+        if (yCurveAt650 === null) yCurveAt650 = curvaBase(650);
+        const t = (x - 650) / (675 - 650); 
+        return yCurveAt650 + t * (280 - yCurveAt650); 
+    }
+    return 280;
+    }
+    let energiaLançada = 0;
+
+    // =======================
+    // Lançar o projétil
+    // =======================
+    function lancar() {
+        mensagemAtual = null;
+        corMensagemAtual = null;
+        mostrarImgExplosao = true;
+        setTimeout(() => {
+            mostrarImgExplosao = false;
+        }, 1000);
+        const energia = parseFloat(energiaInput.value);
+        if (isNaN(energia) || energia <= 0) {
+            alert("Digite um valor válido para a energia!");
+            return;
+        }
+
+        energiaLançada = energia;
+        bola.raio = 10;
+        const v = Math.sqrt((2 * energia) / massa);
+        const h = (energia) / (massa * g);
+        alturaMaxima = h;
+
+        const hMin = 17.99;
+        const hMax = 19.25;
+        sucesso = (h >= hMin && h <= hMax);
+        yCurveAt650 = null;
+
+        console.log(`Altura máxima calculada: ${h.toFixed(2)} m | sucesso: ${sucesso}`);
+
+        setTimeout(() => {
+            if (sucesso) {
+                setMensagem("VOCÊ ATINGIU O OBJETIVO, PARABÉNS!", "green");
+                tocarSom("song/sucess.wav");
+            } else {
+                setMensagem("QUE PENA, TENTE NOVAMENTE", "red");
+                tocarSom("song/game-over.wav");
+            }
+        }, 2000);
+
+        // x_max normal (para o caso sem sucesso)
+        x_max = (h + 8.163) / 0.040316;
+        x_max = Math.min(x_max, 900);
+
+        // estado inicial da bola
+        currentX = 200;
+        bola.x = currentX;
+        bola.y = sucesso ? calcularY_sucesso(currentX) : calcularY(currentX);
+
+        trajetoria = [{ x: bola.x, y: bola.y }];
+
+        rodando = true;
+        lancarBtn.disabled = true;
+
+        if (animationId) cancelAnimationFrame(animationId);
+        animar();
+    }
+
+    // =======================
+    // Define mensagem na tela
+    // =======================
+    function setMensagem(texto, cor) {
+        mensagemAtual = texto;
+        corMensagemAtual = cor;
+
+        // Garante que seja desenhada mesmo com animação parada
+        desenhar();
+        desenharMensagem();
+    }
+
+    // =======================
+    // Desenha a mensagem
+    // =======================
+    function desenharMensagem() {
+        if (!mensagemAtual) return;
+
+        ctx.save();
+
+        const largura = 500;
+        const altura = 60;
+        const x = 150; 
+        const y = 200;
+
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(x + 20, y);
+        ctx.lineTo(x + largura - 20, y);
+        ctx.quadraticCurveTo(x + largura, y, x + largura, y + 20);
+        ctx.lineTo(x + largura, y + altura - 20);
+        ctx.quadraticCurveTo(x + largura, y + altura, x + largura - 20, y + altura);
+        ctx.lineTo(x + 20, y + altura);
+        ctx.quadraticCurveTo(x, y + altura, x, y + altura - 20);
+        ctx.lineTo(x, y + 20);
+        ctx.quadraticCurveTo(x, y, x + 20, y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.font = "bold 22px Arial";
+        ctx.fillStyle = corMensagemAtual;
+        ctx.textAlign = "center";
+        ctx.fillText(mensagemAtual, x + largura / 2, y + 38);
+
+        ctx.restore();
+    }
+
+    // =======================
+    // Loop de animação
+    // =======================
+    function animar() {
+        if (!rodando) return;
+
+        currentX += 5;
+        bola.x = currentX;
+        bola.y = sucesso ? calcularY_sucesso(currentX) : calcularY(currentX);
+
+        if (trajetoria.length >= maxTrajetoriaPoints) {
+            trajetoria.shift();
+        }
+        trajetoria.push({ x: bola.x, y: bola.y });
+        let v, h;
+        limite = 400
+        if (bola.x <= limite) {
+            v = Math.sqrt((2 * energiaLançada) / massa);
+        } else {
+            v = 0;
+        }
+
+        if (bola.x > 400) {
+            if (bola.y >= 391.46) {
+                h = 0;
+            } else if (bola.y >= 390.34) {
+                h = 6.97 + (0 - 6.97) / (391.46 - 390.34) * (bola.y - 390.34);
+            } else if (bola.y >= 389.69) {
+                h = 7.27 + (6.97 - 7.27) / (390.34 - 389.69) * (bola.y - 389.69);
+            } else if (bola.y >= 388.97) {
+                h = 7.56 + (7.27 - 7.56) / (389.69 - 388.97) * (bola.y - 388.97);
+            } else if (bola.y >= 387.36) {
+                h = 7.85 + (7.56 - 7.85) / (388.97 - 387.36) * (bola.y - 387.36);
+            } else if (bola.y >= 386.46) {
+                h = 8.14 + (7.85 - 8.14) / (387.36 - 386.46) * (bola.y - 386.46);
+            } else if (bola.y >= 384.48) {
+                h = 8.43 + (8.14 - 8.43) / (386.46 - 384.48) * (bola.y - 384.48);
+            } else if (bola.y >= 383.40) {
+                h = 8.72 + (8.43 - 8.72) / (384.48 - 383.40) * (bola.y - 383.40);
+            } else if (bola.y >= 381.05) {
+                h = 9.01 + (8.72 - 9.01) / (383.40 - 381.05) * (bola.y - 381.05);
+            } else if (bola.y >= 379.78) {
+                h = 9.30 + (9.01 - 9.30) / (381.05 - 379.78) * (bola.y - 379.78);
+            } else if (bola.y >= 377.06) {
+                h = 9.59 + (9.30 - 9.59) / (379.78 - 377.06) * (bola.y - 377.06);
+            } else if (bola.y >= 375.60) {
+                h = 9.88 + (9.59 - 9.88) / (377.06 - 375.60) * (bola.y - 375.60);
+            } else if (bola.y >= 370.86) {
+                h = 10.46 + (9.88 - 10.46) / (375.60 - 370.86) * (bola.y - 370.86);
+            } else if (bola.y >= 369.16) {
+                h = 10.75 + (10.46 - 10.75) / (370.86 - 369.16) * (bola.y - 369.16);
+            } else if (bola.y >= 365.57) {
+                h = 11.04 + (10.75 - 11.04) / (369.16 - 365.57) * (bola.y - 365.57);
+            } else if (bola.y >= 363.68) {
+                h = 11.34 + (11.04 - 11.34) / (365.57 - 363.68) * (bola.y - 363.68);
+            } else if (bola.y >= 359.71) {
+                h = 11.63 + (11.34 - 11.63) / (363.68 - 359.71) * (bola.y - 359.71);
+            } else if (bola.y >= 357.63) {
+                h = 11.92 + (11.63 - 11.92) / (359.71 - 357.63) * (bola.y - 357.63);
+            } else if (bola.y >= 353.29) {
+                h = 12.21 + (11.92 - 12.21) / (357.63 - 353.29) * (bola.y - 353.29);
+            } else if (bola.y >= 351.02) {
+                h = 12.50 + (12.21 - 12.50) / (353.29 - 351.02) * (bola.y - 351.02);
+            } else if (bola.y >= 348.69) {
+                h = 12.79 + (12.50 - 12.79) / (351.02 - 348.69) * (bola.y - 348.69);
+            } else if (bola.y >= 343.85) {
+                h = 13.08 + (12.79 - 13.08) / (348.69 - 343.85) * (bola.y - 343.85);
+            } else if (bola.y >= 341.33) {
+                h = 13.37 + (13.08 - 13.37) / (343.85 - 341.33) * (bola.y - 341.33);
+            } else if (bola.y >= 336.11) {
+                h = 13.66 + (13.37 - 13.66) / (341.33 - 336.11) * (bola.y - 336.11);
+            } else if (bola.y >= 333.40) {
+                h = 13.95 + (13.66 - 13.95) / (336.11 - 333.40) * (bola.y - 333.40);
+            } else if (bola.y >= 327.79) {
+                h = 14.24 + (13.95 - 14.24) / (333.40 - 327.79) * (bola.y - 327.79);
+            } else if (bola.y >= 324.90) {
+                h = 14.53 + (14.24 - 14.53) / (327.79 - 324.90) * (bola.y - 324.90);
+            } else if (bola.y >= 318.91) {
+                h = 14.82 + (14.53 - 14.82) / (324.90 - 318.91) * (bola.y - 318.91);
+            } else if (bola.y >= 315.83) {
+                h = 15.12 + (14.82 - 15.12) / (318.91 - 315.83) * (bola.y - 315.83);
+            } else if (bola.y >= 312.67) {
+                h = 15.41 + (15.12 - 15.41) / (315.83 - 312.67) * (bola.y - 312.67);
+            } else if (bola.y >= 306.18) {
+                h = 15.70 + (15.41 - 15.70) / (312.67 - 306.18) * (bola.y - 306.18);
+            } else if (bola.y >= 302.84) {
+                h = 15.98 + (15.70 - 15.98) / (306.18 - 302.84) * (bola.y - 302.84);
+            } else if (bola.y >= 295.96) {
+                h = 16.28 + (15.98 - 16.28) / (302.84 - 295.96) * (bola.y - 295.96);
+            } else if (bola.y >= 292.43) {
+                h = 16.57 + (16.28 - 16.57) / (295.96 - 292.43) * (bola.y - 292.43);
+            } else if (bola.y >= 285.17) {
+                h = 16.82 + (16.57 - 16.82) / (292.43 - 285.17) * (bola.y - 285.17);
+            } else if (bola.y >= 281.44) {
+                h = 17.52 + (16.82 - 17.52) / (285.17 - 281.44) * (bola.y - 281.44);
+            } else if (bola.y >= 273.80) {
+                h = 17.44 + (17.52 - 17.44) / (281.44 - 273.80) * (bola.y - 273.80);
+            } else if (bola.y >= 269.88) {
+                h = 17.73 + (17.44 - 17.73) / (273.80 - 269.88) * (bola.y - 269.88);
+            } else if (bola.y >= 265.90) {
+                h = 17.87 + (17.73 - 17.87) / (269.88 - 265.90) * (bola.y - 265.90);
+            } else if (bola.y >= 240.64) {
+                h = 19.19 + (17.98 - 19.19) / (265.90 - 240.64) * (bola.y - 240.64);
+            } else if (bola.y >= 231.71) {
+                h = 19.47 + (19.19 - 19.47) / (240.64 - 231.71) * (bola.y - 231.71);
+            } else if (bola.y >= 227.14) {
+                h = 19.77 + (19.47 - 19.77) / (231.71 - 227.14) * (bola.y - 227.14);
+            } else if (bola.y >= 217.81) {
+                h = 20.06 + (19.77 - 20.06) / (227.14 - 217.81) * (bola.y - 217.81);
+            } else if (bola.y >= 213.05) {
+                h = 20.35 + (20.06 - 20.35) / (217.81 - 213.05) * (bola.y - 213.05);
+            } else if (bola.y >= 208.23) {
+                h = 20.64 + (20.35 - 20.64) / (213.05 - 208.23) * (bola.y - 208.23);
+            } else if (bola.y >= 198.38) {
+                h = 20.93 + (20.64 - 20.93) / (208.23 - 198.38) * (bola.y - 198.38);
+            } else if (bola.y >= 193.36) {
+                h = 21.22 + (20.93 - 21.22) / (198.38 - 193.36) * (bola.y - 193.36);
+            } else if (bola.y >= 183.12) {
+                h = 21.51 + (21.22 - 21.51) / (193.36 - 183.12) * (bola.y - 183.12);
+            } else if (bola.y >= 177.91) {
+                h = 21.80 + (21.51 - 21.80) / (183.12 - 177.91) * (bola.y - 177.91);
+            } else if (bola.y >= 167.27) {
+                h = 22.10 + (21.80 - 22.10) / (177.91 - 167.27) * (bola.y - 167.27);
+            } else if (bola.y >= 161.86) {
+                h = 22.38 + (22.10 - 22.38) / (167.27 - 161.86) * (bola.y - 161.86);
+            } else if (bola.y >= 156.38) {
+                h = 22.67 + (22.38 - 22.67) / (161.86 - 156.38) * (bola.y - 156.38);
+            } else if (bola.y >= 145.22) {
+                h = 22.97 + (22.67 - 22.97) / (156.38 - 145.22) * (bola.y - 145.22);
+            } else if (bola.y >= 139.54) {
+                h = 23.26 + (22.97 - 23.26) / (145.22 - 139.54) * (bola.y - 139.54);
+            } else if (bola.y >= 127.99) {
+                h = 23.55 + (23.26 - 23.55) / (139.54 - 127.99) * (bola.y - 127.99);
+            } else if (bola.y >= 110.17) {
+                h = 24.13 + (23.55 - 24.13) / (127.99 - 110.17) * (bola.y - 110.17);
+            } else if (bola.y >= 91.74) {
+                h = 24.71 + (24.13 - 24.71) / (110.17 - 91.74) * (bola.y - 91.74);
+            } else {
+                h = 24.71;
+            }
+        } else {
+            h = 0;
+        }
+        const energia = parseFloat(energiaInput.value)
+        const TOT = energia;
+        const h_teorico = TOT / (massa * g);
+        if (Math.abs(h - h_teorico) < 1) { 
+            h = h_teorico;
+        }
+
+        if (bola.y == 280){
+            h = h_teorico
+        }
+
+        PE = massa * g * h;
+        KE = Math.abs(energiaLançada - PE);
+        infoEnergia.textContent = `K=${KE.toFixed(1)} J | U=${PE.toFixed(1)} J | E=${energiaLançada.toFixed(1)} J`;
+        if (sucesso) {
+            if (currentX >= 675) { 
+                rodando = false;
+                lancarBtn.disabled = false;
+            }
+        } else {
+            if (currentX >= x_max) {
+                rodando = false;
+                lancarBtn.disabled = false;
+            }
+        }
+        desenhar();
+        desenharMensagem();
+        if (rodando) {
+            animationId = requestAnimationFrame(animar);
+        }
+    }
+
+    // =======================
+    // Resetar simulação
+    // =======================
+    function resetar() {
+    sucesso = false;
+    yCurveAt650 = null;
+    alturaMaxima = 0;
+
+    bola = { x: 200, y: calcularY(200), raio: 0, vx: 0, vy: 0 };
+    rodando = false;
+    trajetoria = [];
+    currentX = 200;
+    mostrarImgExplosao = false;
+
+    mensagemAtual = null;
+    corMensagemAtual = null;
+
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+    KE = 0;
+    PE = 0;
+    energiaLançada = 0;
+
+    infoEnergia.textContent = "K=0.0 J | U=0.0 J | E=0.0 J";
+    lancarBtn.disabled = false;
+
+    desenhar();
+}
+    lancarBtn.addEventListener('click', lancar);
+    resetarBtn.addEventListener('click', resetar);
+    energiaInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            lancar();
+        }
+    });
+    
+    fundo.onload = function() {
+        desenhar();
+    };
+
+    fundo.onerror = function() {
+        console.log("Erro ao carregar a imagem de fundo");
+        desenhar();
+    };
+    
+    resetar();
+</script>
+
+</body>
+</html>
